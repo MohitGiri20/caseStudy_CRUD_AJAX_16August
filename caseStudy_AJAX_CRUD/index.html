@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <style>
+        body > table{
+    width: 80%;
+}
+
+table{
+    border-collapse: collapse;
+}
+table.list{
+    width:100%;
+}
+
+td, th {
+    border: 1px solid aquamarine;
+    text-align: left;
+    padding: 8px;
+}
+tr:nth-child(even),table.list thead>tr {
+    background-color: aquamarine;
+}
+
+input[type=text], input[type=number] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid aquamarine;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type=button]{
+    width: 30%;
+    background-color:aquamarine;
+    color: #000;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form div.form-action-buttons{
+    text-align: right;
+}
+
+
+
+label.validation-error{
+    color:   red;
+    margin-left: 5px;
+}
+
+.hide{
+    display:none;
+}
+    </style>
+    
+    <script>
+    function addProduct(){
+        var xhttp=new XMLHttpRequest()
+        
+            product_name=document.getElementById('pname').value,
+            price=document.getElementById('pr').value,
+            quantity=document.getElementById('qty').value
+
+        if(xhttp){
+            xhttp.onload=function(){
+                document.getElementById('add_res').innerHTML=xhttp.responseText
+                //////////
+            
+
+        //////////////////////////////
+            }
+            xhttp.open('POST','http://localhost:5055/add')
+            xhttp.send(product_name+'&'+price+'&'+quantity)
+            alert("Product Added Successfully")
+        }
+    }
+    function deleteProduct(){
+        var xhttp=new XMLHttpRequest()
+        
+            product_name=document.getElementById('pname_del').value
+
+        if(xhttp){
+            xhttp.onload=function(){
+                document.getElementById('add_res').innerHTML=xhttp.responseText
+              
+            }
+            xhttp.open('DELETE','http://localhost:5055/del')
+            xhttp.send(product_name)
+            alert("Selected Product Deleted Successfully")
+        }
+    }
+    function updateProduct(){
+        var xhttp=new XMLHttpRequest()
+        
+            product_name=document.getElementById('pname_upd').value
+            price=document.getElementById('pr_upd').value
+            quantity = document.getElementById('qty').value
+
+        if(xhttp){
+            xhttp.onload=function(){
+                document.getElementById('add_res').innerHTML=xhttp.responseText
+
+            }
+            xhttp.open('PATCH','http://localhost:5055/updtpr')
+            xhttp.send(product_name+'&'+price +'&' + quantity)
+            alert("Selected Product updated successfully")
+        }
+    }
+    function searchProduct(){
+        var xhttp=new XMLHttpRequest()
+        
+            // product_name=document.getElementById('pname_sr').value
+
+        // if(xhttp){
+        //     xhttp.onload=function(){
+        //         document.getElementById('add_res').innerHTML=xhttp.responseText
+
+        //     }
+        //     xhttp.open('GET','/api')
+        //     xhttp.send(product_name)
+        // }
+        xhttp.open('GET','http://localhost:5055/api')
+        xhttp.onload = function(){
+            var mydata = JSON.parse(xhttp.responseText)
+            //console.log(mydata[0])
+            searchProd(mydata);
+        }
+
+        xhttp.send()
+
+    }
+
+    function searchProd(p){
+        pName=document.getElementById('pname_sr').value
+        console.log(pName+"................")
+        for(var i=0;i<p.length;i++){
+            console.log(p[i].product_name)
+            if(p[i].product_name == pName){
+            var para = document.getElementById("add_res");
+            para.innerHTML = JSON.stringify(p[i]);
+            }else{
+                para.innerHTML = "Product Not found"
+            }
+        }
+    }
+
+    function createTable(){
+        var xhttp=new XMLHttpRequest()
+        xhttp.open('GET','http://localhost:5055/api')
+        xhttp.onload = function(){
+            var mydata = JSON.parse(xhttp.responseText)
+            //console.log(mydata[0])
+            formTable(mydata);
+        }
+        xhttp.send()
+    }
+    function formTable(p){
+        
+                var col = []
+               
+        for (var i = 0; i < p.length; i++) {
+            for (var key in p[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+        var table = document.createElement("table");
+                var tr = table.insertRow(-1); 
+
+                // var col = ["Product Name","Product Price","Product Quantity"]
+                // var p = [product_name,price,quantity]
+                for (var i = 0; i < col.length; i++) {
+                  var th = document.createElement("th");      // TABLE HEADER.
+                  th.innerHTML = col[i];
+                  tr.appendChild(th);    
+                }    
+
+            for(var i=0;i<p.length;i++){    
+            tr = table.insertRow(-1);
+
+            for (var j = 0; j < col.length; j++) {
+               var tabCell = tr.insertCell(-1);
+              tabCell.innerHTML = p[i][col[j]];
+
+            }
+        }
+            var divContainer = document.getElementById("showData");
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+    }
+
+
+</script>
+  
+    
+</head>
+<body>
+    <h1 style  = "background-color: aquamarine; text-align: center;"><em>Product Page</em></h1>
+
+    <table>
+        <tr>
+            <td>
+    <form method ="POST" action = "/formreq" id ="form">
+        <div>
+        Enter Product name
+        <input type="text" id="pname" name="pname">
+        </div>
+        <div>
+        Enter Product Quantity
+        <input type="number" id="qty" name="qty">
+        </div>
+        <div>
+        Enter Product Price
+        <input type="number" id='pr' name="pr">
+        </div>
+        <!-- <a onclick="updateProduct()">Update </a>
+        <a onclick="deleteProduct()">Delete</a> -->
+        <input type="button" value="Add" onclick="addProduct()">
+            <br>
+        <!-- <input type = 'submit' name  = 'login'>  -->
+        Enter Prod name to delete:
+        <input type="text" id="pname_del">
+        <br>
+        <input type="button" value="Delete" onclick="deleteProduct()">
+        <br>
+        <br>
+        Enter Prod name to Update:
+        <input type="text" id="pname_upd">
+        <br>
+        Enter Updated Price:
+        <input type="text" id="pr_upd">
+        <br>
+        <input type="button" value="Update" onclick="updateProduct()">
+        <br>
+        Enter Product name to search:
+        <input type="text" id="pname_sr" >
+        <input type = "button" value = "Search" onclick = "searchProduct()">
+        <br>
+        <p id="add_res"></p>
+      </form> 
+    </td>
+    <td>
+        <!-- <table class="list" id="productList">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Product Price</th>
+                    <th>Product Quantity</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>    
+        </table> -->
+        <input type="button" onclick="createTable()" value="Create Table" />
+            <p id="showData"></p>
+    </td>
+</tr>
+</table>
+      
+      
+     
+    <!-- <div id ="product">
+        ProductName<input type = 'text'>
+    </div>
+    <input type = 'text' onkeydown="getlist()">
+    <div id = 'resdata'> -->
+
+
+
+</body>
+</html>
